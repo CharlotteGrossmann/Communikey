@@ -2,6 +2,7 @@ import React, { useState, Fragment } from "react";
 import "./App.css";
 import Heading from "./components/Header";
 import Button from "./components/MsgButton";
+import Chakras from "./components/Chakras";
 
 var mqtt = require('mqtt');
 const username = 'Communikey';
@@ -24,7 +25,7 @@ var topic = "Almeria22";
 
 client.subscribe(topic, { qos: 1 }); //single topic
 
-function App() {
+const App=() => {
   var note;
 
   client.on("connect", function () {
@@ -34,10 +35,19 @@ function App() {
   client.on("message", function (topic, message) {
     note = message.toString();
     // Updates React state with message
-    messages.push(note);
-    messages.shift();
-
+    setMsg(note);
+    console.log(note);
+    const newMessages =[...messages];
+    newMessages.unshift(note);
+    newMessages.pop();
+    setMessages(newMessages);
   });
+
+  const [msg, setMsg] = useState(
+    <Fragment>
+      <em>...</em>
+    </Fragment>
+  );
 
  const [messages, setMessages]= useState(["Element 1", "element 2", "element 3", " element 4", "element 5"]);
 
@@ -56,10 +66,11 @@ function App() {
   }
   var timer_id = setInterval(function () { publish(topic, mymessage, options); }, 5000);
 
-  function push(){
-    messages.push("lol");
-    messages.shift();
-    setMessages(messages);
+  const push = ()=> {
+    const newMessages =[...messages];
+    newMessages.unshift("lol");
+    newMessages.pop();
+    setMessages(newMessages);
   }
 
   return (
@@ -74,9 +85,7 @@ function App() {
           <Button onClick={push} text="senden" />
         </div>
         <div className="box" id="Chakras">
-          <canvas>
-
-          </canvas>
+         
           <Button text="speichern" />
         </div>
       </section>
