@@ -2,9 +2,10 @@ import React, { useState, Fragment } from "react";
 import "./App.css";
 import Heading from "./components/Header";
 import Button from "./components/MsgButton";
-import Chakras from "./components/Chakras";
+import mqtt from "precompiled-mqtt"
+import MessageBox from "./components/MessageBox";
+import {useRef} from 'react';
 
-var mqtt = require('mqtt');
 const username = 'Communikey';
 const password = 'talkToM3@h1vemq';
 var count = 0;
@@ -14,7 +15,7 @@ var messages = ["Element 1", "element 2", "element 3", " element 4", "element 5"
 var options = {
   username,
   password,
-  retain: true,
+  retain: false,
   clientId: "mqttjs01",
   qos: 1
 };
@@ -32,46 +33,53 @@ const App=() => {
     console.log("connected  " + client.connected);
 
   })
+
   client.on("message", function (topic, message) {
     note = message.toString();
     // Updates React state with message
-    setMsg(note);
-    console.log(note);
+    
     const newMessages =[...messages];
     newMessages.unshift(note);
-    newMessages.pop();
+    //newMessages.pop();
     setMessages(newMessages);
+    
   });
 
-  const [msg, setMsg] = useState(
-    <Fragment>
-      <em>...</em>
-    </Fragment>
-  );
+  
 
  const [messages, setMessages]= useState(["Element 1", "element 2", "element 3", " element 4", "element 5"]);
 
   function publish(topic, msg, options) {
 
-
+    
     if (client.connected == true) {
 
       client.publish(topic, msg, options);
 
     }
-    count += 1;
-    if (count == 2) //ens script
-      clearTimeout(timer_id); //stop timer
-    client.end();
+    
   }
-  var timer_id = setInterval(function () { publish(topic, mymessage, options); }, 5000);
 
   const push = ()=> {
-    const newMessages =[...messages];
-    newMessages.unshift("lol");
-    newMessages.pop();
-    setMessages(newMessages);
+    var mymessage = ref.current.value + " " + username;
+    publish("Almeria22",mymessage)
   }
+
+  let data = `name,age,city\\
+
+      John,30,New York\\
+
+      Jane,40,London\\
+
+      Mike,25,Paris`;
+
+let array = data.split("\\n").map(function (line) {
+    return line.split(",");
+});
+
+console.log(array);
+
+  const ref = useRef(null);
 
   return (
 
@@ -82,11 +90,11 @@ const App=() => {
 
       <section id="outgoing">
         <div className="box" id="Messaging">
+            <label htmlFor="message">My Textarea</label>
+          <textarea ref={ref} id="message" name="message" />
+
+          
           <Button onClick={push} text="senden" />
-        </div>
-        <div className="box" id="Chakras">
-         
-          <Button text="speichern" />
         </div>
       </section>
 
